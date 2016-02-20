@@ -24,23 +24,28 @@ class MyRobot(wp.SampleRobot):
 		self.low = wp.Solenoid(2)
 		self.stick = wp.Joystick(1)
 		self.stick2 = wp.Joystick(2)
+		self.autoTime = wp.Timer()
 		self.sd = NT.getTable('SmartDashboard') #the smart dashboard communication
 
 	def autonomous(self):
-		begin = tm.clock()
+		self.autoTime.start()
+		self.autoTime.reset()
+		self.gyro.calibrate()
+		rSide = 0
+		lSide = 0
 		while self.isAutonomous() and self.isEnabled():
-			self.gyro.calibrate() 
-			rSide, lSide = rf.gyroFunc(self.gyro.getAngle(), rSide, lSide)
+			
+			if(self.autoTime.get() <= 5):
+				print(self.gyro.getAngle())
+				rSide, lSide = rf.gyroFunc(self.gyro.getAngle(), 0.5, 0.5)
+			else:
+				rSide = 0
+				lSide = 0
 				
-			while(tm.clock() <= (begin + 5) ):
-				self.motorFrontRight.set(rSide)
-				self.motorBackRight.set(rSide)
-				self.motorMiddleRight.set(rSide * -1)	# Reversed because of the dynamics of the transmission
-				self.motorFrontLeft.set(lSide * -1)
-				self.motorBackLeft.set(lSide * -1)
-				self.motorMiddleLeft.set(lSide)			# Reversed because of the dynamics of the transmission
-				self.intakeMotor.set(intakeMotorSpeed)	
-			'''Put robot aton hereish'''
+			self.motorFrontRight.set(rSide)
+			self.motorBackRight.set(rSide)	
+			self.motorFrontLeft.set(lSide * -1)
+			self.motorBackLeft.set(lSide * -1)
 
 	def disabled(self):
 		pass
