@@ -27,3 +27,7 @@ def gyroFunc(angle, rSide, lSide):
 def deadband(side, dtGain):
 	setSide = (side/abs(side))*((1/(1-dtGain))*(abs(side)-dtGain))
 	return setSide
+
+def speedHold(encdRate, wantedRate, gain):
+	motSpeed = (encdRate - wantedRate) / gain
+	return motSpeed

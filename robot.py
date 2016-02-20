@@ -17,7 +17,8 @@ class MyRobot(wp.SampleRobot):
 		self.motorBackLeft = wp.VictorSP(4)
 		self.motorMiddleLeft = wp.VictorSP(6)
 		self.intakeMotor = wp.VictorSP(7)
-		self.encd = wp.Encoder(1, 2)
+		self.encdRight = wp.Encoder(0, 1)
+		self.encdLeft = wp.Encoder(2,3)
 		self.gyro = wp.AnalogGyro(0, center = None, offset = None)
 		self.compressor = wp.Compressor()
 		self.high = wp.Solenoid(1)
@@ -33,19 +34,18 @@ class MyRobot(wp.SampleRobot):
 		self.gyro.calibrate()
 		rSide = 0
 		lSide = 0
+		wantedSpeed = 300
+		speedGain = 100	
 		while self.isAutonomous() and self.isEnabled():
-			
-			if(self.autoTime.get() <= 5):
-				print(self.gyro.getAngle())
-				rSide, lSide = rf.gyroFunc(self.gyro.getAngle(), 0.5, 0.5)
-			else:
-				rSide = 0
-				lSide = 0
-				
-			self.motorFrontRight.set(rSide)
-			self.motorBackRight.set(rSide)	
-			self.motorFrontLeft.set(lSide * -1)
-			self.motorBackLeft.set(lSide * -1)
+			#rSide, lSide = rf.gyroFunc(self.gyro.getAngle(), 0.75, 0.75)
+			setR = rf.speedHold(self.encdRight.getRate(), wantedSpeed, speedGain) 
+			setL = rf.speedHold(self.encdLeft.getRate(), wantedSpeed, speedGain) 
+			self.motorFrontRight.set(setR * -1)
+			self.motorMiddleRight.set(setR)
+			self.motorBackRight.set(setR * -1)	
+			self.motorFrontLeft.set(setL)
+			self.motorMiddleLeft.set(setL * -1)
+			self.motorBackLeft.set(setL)
 
 	def disabled(self):
 		pass
@@ -55,8 +55,9 @@ class MyRobot(wp.SampleRobot):
 		driveType = True
 		past2 = False
 		flipVar = False
-		#reset encoder
-		self.encd.reset()
+		#reset encoders
+		self.encdRight.reset()
+		self.encdLeft.reset()
 		#calibrate gyro
 		self.gyro.calibrate() 
 		encval = 0
@@ -67,6 +68,8 @@ class MyRobot(wp.SampleRobot):
 		highOn = True
 		lowOn = False
 		past3 = False
+		wantedSpeed = 300
+		speedGain = 100
 		while self.isOperatorControl() and self.isEnabled():
 			#output to dashboard
 			joyValY = self.stick.getY()
@@ -80,6 +83,7 @@ class MyRobot(wp.SampleRobot):
 			highButton = self.stick.getRawButton(6)
 			lowButton = self.stick.getRawButton(7)
 			compressorButton = self.stick.getRawButton(9)
+			
 
 			#toggle drivetype button
 			if (past == False and driveTypeButton == True):
@@ -131,8 +135,10 @@ class MyRobot(wp.SampleRobot):
 			else:
 				setL = 0
 			
-			#reset gyro button
-			if(gyroButton):
+			
+			
+			
+			if (gyroButton):
 				self.gyro.calibrate()
 		
 			self.motorFrontRight.set(setR * -1)
@@ -144,8 +150,10 @@ class MyRobot(wp.SampleRobot):
 			self.intakeMotor.set(intakeMotorSpeed)
 			
 			#smartdashboard
-			self.sd.putString("DB/String 0", str(self.encd.get()))
-			print("encd: " + str(self.encd.get())) 
+			self.sd.putString("DB/String 0", str(self.encdRight.get()))
+			print("encdRight: " + str(self.encdRight.get()))
+			print("encdLeft: " + str(self.encdLeft.get()))	
+			print("encdLeftRate: " + str(self.encdLeft.getRate()))	
 			print("gyro: " + str(self.gyro.getAngle()))
 
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles

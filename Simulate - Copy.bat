@@ -1,3 +1,3 @@
 @echo off
-py testfunctions.py 
+py robot(oldstyle).py 
 pause

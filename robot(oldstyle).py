@@ -31,20 +31,20 @@ class MyRobot(wp.SimpleRobot):
 		self.encd = wp.Encoder(5, 6)
 		self.stick = wp.Joystick(1)
 		self.stick2 = wp.Joystick(2)
+		self.autoTime = wp.Timer()
 		#self.smartDs = wp.SmartDashboard() #the smart dashboard communication
 
 	def Autonomous(self):
-		begin = tm.clock() + 5
+		self.autoTime.Start()
+		self.autoTime.Reset()
+		self.gyro.Reset()
+		rSide = 0
+		lSide = 0
 		while self.IsAutonomous() and self.IsEnabled():
 			
-			print(tm.clock())
-			print(begin)
-			
-			self.gyro.Reset() 	
-			if(tm.clock() <= begin):
+			if(self.autoTime.Get() <= 5):
 				print(self.gyro.GetAngle())
 				rSide, lSide = gyroFunc(self.gyro.GetAngle(), 0.5, 0.5)
-				
 			else:
 				rSide = 0
 				lSide = 0
@@ -52,8 +52,7 @@ class MyRobot(wp.SimpleRobot):
 			self.motorFrontRight.Set(rSide)
 			self.motorBackRight.Set(rSide)	
 			self.motorFrontLeft.Set(lSide * -1)
-			self.motorBackLeft.Set(lSide * -1)			
-				#Put robot aton hereish
+			self.motorBackLeft.Set(lSide * -1)
 
 	def Disabled(self):
 		pass
@@ -94,25 +93,24 @@ class MyRobot(wp.SimpleRobot):
 				joyValY = joyVal2
 				joyVal2 = temp
 
+			if(flip and driveType == False):
+				aR, aL = arcade(joyValY, joyValX)
+			if(flip == False and driveType == False):
+				aR, aL = arcade(joyValX, joyValY)
+			
 			if (driveType):
 				tR, tL = tank(joyValY, joyVal2)
 				self.motorFrontRight.Set(tR)
 				self.motorBackRight.Set(tR)
 				self.motorFrontLeft.Set(tL * -1)
 				self.motorBackLeft.Set(tL * -1)
-				
-				
-			if(flip and driveType == False):
-				aR, aL = arcade(joyValY, joyValX)
-			if(flip == False and driveType == False):
-				aR, aL = arcade(joyValX, joyValY)
-			
-
 			else:
 				self.motorFrontRight.Set(aR)
 				self.motorBackRight.Set(aR)
 				self.motorFrontLeft.Set(aL * -1)
 				self.motorBackLeft.Set(aL * -1)
+
+			
 
 
 			wp.Wait(0.005)   # wait 5ms to avoid hogging CPU cycles
