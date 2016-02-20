@@ -28,25 +28,32 @@ class MyRobot(wp.SimpleRobot):
 		self.motorBackLeft = wp.Jaguar(4)
 		
 		self.gyro = wp.Gyro(1)
-		
+		self.encd = wp.Encoder(5, 6)
 		self.stick = wp.Joystick(1)
 		self.stick2 = wp.Joystick(2)
 		#self.smartDs = wp.SmartDashboard() #the smart dashboard communication
 
 	def Autonomous(self):
-		begin = tm.clock()
+		begin = tm.clock() + 5
 		while self.IsAutonomous() and self.IsEnabled():
-		
 			
-			self.gyro.calibrate() 	
-			while(tm.clock() <= (begin + 5) ):
-				rSide, lSide = gyroFunc(self.gyro.getAngle(), 0, 0)
-				self.motorFrontRight.Set(rSide)
-				self.motorBackRight.Set(rSide)	
-				self.motorFrontLeft.Set(lSide * -1)
-				self.motorBackLeft.Set(lSide * -1)
-					
-				'''Put robot aton hereish'''
+			print(tm.clock())
+			print(begin)
+			
+			self.gyro.Reset() 	
+			if(tm.clock() <= begin):
+				print(self.gyro.GetAngle())
+				rSide, lSide = gyroFunc(self.gyro.GetAngle(), 0.5, 0.5)
+				
+			else:
+				rSide = 0
+				lSide = 0
+				
+			self.motorFrontRight.Set(rSide)
+			self.motorBackRight.Set(rSide)	
+			self.motorFrontLeft.Set(lSide * -1)
+			self.motorBackLeft.Set(lSide * -1)			
+				#Put robot aton hereish
 
 	def Disabled(self):
 		pass
