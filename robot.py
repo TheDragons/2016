@@ -10,6 +10,7 @@ class MyRobot(wp.SampleRobot):
 
 	def robotInit(self):
 		'''Robot initialization function'''
+		
 		self.motorFrontRight = wp.VictorSP(1)
 		self.motorBackRight = wp.VictorSP(3)
 		self.motorMiddleRight = wp.VictorSP(5)
