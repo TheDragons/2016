@@ -10,6 +10,7 @@ class MyRobot(wp.SampleRobot):
 
 	def robotInit(self):
 		'''Robot initialization function'''
+		print("Yes I is Tim")
 		self.motorFrontRight = wp.VictorSP(1)
 		self.motorBackRight = wp.VictorSP(3)
 		self.motorMiddleRight = wp.VictorSP(5)
@@ -23,9 +24,12 @@ class MyRobot(wp.SampleRobot):
 		self.compressor = wp.Compressor()
 		self.high = wp.Solenoid(1)
 		self.low = wp.Solenoid(2)
-		self.stick = wp.Joystick(1)
-		self.stick2 = wp.Joystick(2)
+		self.stick = wp.Joystick(0)
+		self.stick2 = wp.Joystick(1)
+		self.stick3 = wp.Joystick(2)
+		self.intakeSensor = wp.DigitalInput(4)
 		self.autoTime = wp.Timer()
+		self.intakeTime = wp.Timer()
 		self.sd = NT.getTable('SmartDashboard') #the smart dashboard communication
 
 	def autonomous(self):
@@ -70,25 +74,29 @@ class MyRobot(wp.SampleRobot):
 		past3 = False
 		wantedSpeed = 300
 		speedGain = 100
+		intakeIsEnabled = False
+		previousIntake = False
+		self.intakeTime.reset()
+		self.intakeTime.stop()
 		while self.isOperatorControl() and self.isEnabled():
 			#output to dashboard
 			joyValY = self.stick.getY()
 			joyValX = self.stick.getX()
 			joyVal2 = self.stick2.getY()
-			driveTypeButton = self.stick.getRawButton(3)
-			driveSideButton = self.stick.getRawButton(2)
-			intakeForward = self.stick.getRawButton(11)
-			intakeBackward = self.stick.getRawButton(10)
+			#driveTypeButton = self.stick2.getRawButton(3)
+			driveSideButton = self.stick2.getRawButton(2)
+			intakeForward = self.stick3.getRawButton(10) 
+			intakeBackward = self.stick3.getRawButton(11)
 			gyroButton = self.stick.getRawButton(8)
-			highButton = self.stick.getRawButton(6)
-			lowButton = self.stick.getRawButton(7)
-			compressorButton = self.stick.getRawButton(9)
+			highButton = self.stick2.getRawButton(11)
+			lowButton = self.stick2.getRawButton(10)
+			compressorButton = self.stick3.getRawButton(8)
 			
 
 			#toggle drivetype button
-			if (past == False and driveTypeButton == True):
-				driveType = not driveType
-			past = driveTypeButton
+			#if (past == False and driveTypeButton == True):
+			#	driveType = not driveType
+			#past = driveTypeButton                                 IN CASE WE NEED IT
 
 			#toggle driveside button
 			if (past2 == False and driveSideButton == True):
@@ -102,12 +110,30 @@ class MyRobot(wp.SampleRobot):
 				
 			rSide, lSide = rf.flip(flipVar, rightM, leftM) 
 			
-			#decide which way the intake motor goes
+			#Intake
 			intakeMotorSpeed = 0
-			if( intakeForward):
-				intakeMotorSpeed = 0.75
-			elif( intakeBackward):
-				intakeMotorSpeed = -1
+			if( previousIntake == False and intakeForward == True):
+				intakeIsEnabled = not intakeIsEnabled
+
+			if( intakeIsEnabled):
+				intakeMotorSpeed = .75
+				
+				if( self.intakeSensor.get() == 1 ):
+					if(self.intakeTime.running == False):
+						self.intakeTime.start()
+					print("Intake Timer: " + str(self.intakeTime.get()))
+					if(self.intakeTime.get() > 0.25):
+						intakeMotorSpeed = 0
+						intakeIsEnabled = False
+						self.intakeTime.stop()
+						self.intakeTime.reset()
+				
+			
+			if(intakeBackward):
+				intakeMotorSpeed = -1 
+			
+			previousIntake = intakeForward
+			
 			
 			#toggle compressor button
 			if (compressor == False and compressorButton == True):
@@ -140,7 +166,8 @@ class MyRobot(wp.SampleRobot):
 			
 			if (gyroButton):
 				self.gyro.calibrate()
-		
+			setR = setR * 0.9750367
+			
 			self.motorFrontRight.set(setR * -1)
 			self.motorBackRight.set(setR * -1)
 			self.motorMiddleRight.set(setR)			# Reversed because of the dynamics of the transmission
@@ -149,12 +176,15 @@ class MyRobot(wp.SampleRobot):
 			self.motorMiddleLeft.set(setL * -1)		# Reversed because of the dynamics of the transmission
 			self.intakeMotor.set(intakeMotorSpeed)
 			
+			intakeMotorSpeed = 0
+			
 			#smartdashboard
 			self.sd.putString("DB/String 0", str(self.encdRight.get()))
 			print("encdRight: " + str(self.encdRight.get()))
 			print("encdLeft: " + str(self.encdLeft.get()))	
 			print("encdLeftRate: " + str(self.encdLeft.getRate()))	
 			print("gyro: " + str(self.gyro.getAngle()))
+			print("sensor: " + str(self.intakeSensor.get()))
 
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
