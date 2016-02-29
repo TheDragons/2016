@@ -4,13 +4,20 @@ import wpilib as wp
 import robotfuncs as rf
 import time as tm
 #from networktables import NetworkTable as NT
-	
+
+try:
+	camServ = wp.CameraServer()
+	usbCam = wp.USBCamera()
+	usbCam.setExposureManual(50)
+	usbCam.setBrightness(80)
+	usbCam.updateSettings() # force update before we start thread
+	camServ.startAutomaticCapture(usbCam)
+except:
+	pass
+
 class MyRobot(wp.SampleRobot):
-
-
 	def robotInit(self):
 		'''Robot initialization function'''
-		print("Yes I is Tim")
 		self.motorFrontRight = wp.VictorSP(1)
 		self.motorBackRight = wp.VictorSP(3)
 		self.motorMiddleRight = wp.VictorSP(5)
@@ -30,32 +37,25 @@ class MyRobot(wp.SampleRobot):
 		self.intakeSensor = wp.DigitalInput(4)
 		self.autoTime = wp.Timer()
 		self.intakeTime = wp.Timer()
-		self.sd = wp.SmartDashboard() # NT.getTable('SmartDashboard') #the smart dashboard communication
-		
-		try:
-			self.camServ = wp.CameraServer()
-			self.usbCam = wp.USBCamera()
-			self.usbCam.setExposureManual(50)
-			self.usbCam.setBrightness(80)
-			self.usbCam.updateSettings() # force update before we start thread
-			self.camServ.startAutomaticCapture(self.usbCam)
-		except:
-			pass
+		#self.sd = wp.SmartDashboard() # NT.getTable('SmartDashboard') #the smart dashboard communication
+		#calibrate gyro
+		self.gyro.calibrate() 
 
 	def autonomous(self):
 		self.autoTime.reset()
+		self.autoTime.stop()
 		self.autoTime.start()
-		self.gyro.calibrate()
 		rSide = 0
 		lSide = 0
 		wantedSpeed = 60
 		speedGain = 100	
 		while self.isAutonomous() and self.isEnabled():
-			if(self.autoTime.get() < 5):
-				#rSide, lSide = rf.gyroFunc(self.gyro.getAngle(), 0.75, 0.75)
-				setR = rf.speedHold(self.encdRight.getRate(), wantedSpeed, speedGain) 
-				setL = rf.speedHold(self.encdLeft.getRate(), wantedSpeed, speedGain) 
+			if(self.autoTime.get() < 7):
+				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.75, -0.75)
+				#setR = rf.speedHold(self.encdRight.getRate(), wantedSpeed, speedGain) 
+				#setL = rf.speedHold(self.encdLeft.getRate(), wantedSpeed, speedGain) 
 			else:
+				self.autoTime.stop()
 				setR = 0
 				setL = 0
 				
@@ -77,10 +77,8 @@ class MyRobot(wp.SampleRobot):
 		#reset encoders
 		self.encdRight.reset()
 		self.encdLeft.reset()
-		#calibrate gyro
-		self.gyro.calibrate() 
 		encval = 0
-		dtGain = 0.05
+		dtGain = 0.075
 		setR = 0
 		setL = 0
 		compressor = False
@@ -107,7 +105,6 @@ class MyRobot(wp.SampleRobot):
 			lowButton = self.stick2.getRawButton(10)
 			compressorButton = self.stick3.getRawButton(8)
 			
-
 			#toggle drivetype button
 			#if (past == False and driveTypeButton == True):
 			#	driveType = not driveType
@@ -176,9 +173,6 @@ class MyRobot(wp.SampleRobot):
 			else:
 				setL = 0
 			
-			
-			
-			
 			if (gyroButton):
 				self.gyro.calibrate()
 			setR = setR * 0.9750367
@@ -194,7 +188,7 @@ class MyRobot(wp.SampleRobot):
 			intakeMotorSpeed = 0
 			
 			#smartdashboard
-			self.sd.putString("DB/String 0", "encdRight: " + str(self.encdRight.get())[0:4])
+			#self.sd.putString("DB/String 0", "encdRight: " + str(self.encdRight.get())[0:4])
 			print("encdRight: " + str(self.encdRight.get()))
 			print("encdLeft: " + str(self.encdLeft.get()))	
 			print("encdLeftRate: " + str(self.encdLeft.getRate()))	
