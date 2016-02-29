@@ -14,8 +14,10 @@ try:
 	camServ.startAutomaticCapture(usbCam)
 except:
 	pass
-
+	
 class MyRobot(wp.SampleRobot):
+
+
 	def robotInit(self):
 		'''Robot initialization function'''
 		self.motorFrontRight = wp.VictorSP(1)
@@ -78,7 +80,9 @@ class MyRobot(wp.SampleRobot):
 		self.encdRight.reset()
 		self.encdLeft.reset()
 		encval = 0
-		dtGain = 0.075
+		dtGain = 0.075 
+		encval = 0
+		dtGain = 0.05
 		setR = 0
 		setL = 0
 		compressor = False
@@ -104,7 +108,7 @@ class MyRobot(wp.SampleRobot):
 			highButton = self.stick2.getRawButton(11)
 			lowButton = self.stick2.getRawButton(10)
 			compressorButton = self.stick3.getRawButton(8)
-			
+
 			#toggle drivetype button
 			#if (past == False and driveTypeButton == True):
 			#	driveType = not driveType
