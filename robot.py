@@ -14,7 +14,7 @@ try:
 	camServ.startAutomaticCapture(usbCam)
 except:
 	pass
-	
+
 class MyRobot(wp.SampleRobot):
 
 
@@ -81,10 +81,8 @@ class MyRobot(wp.SampleRobot):
 		self.encdRight.reset()
 		self.encdLeft.reset()
 		self.gyro.reset()
-		encval = 0
 		dtGain = 0.075 
 		encval = 0
-		dtGain = 0.05
 		setR = 0
 		setL = 0
 		compressor = False
