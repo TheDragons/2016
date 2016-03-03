@@ -47,6 +47,7 @@ class MyRobot(wp.SampleRobot):
 		self.autoTime.reset()
 		self.autoTime.stop()
 		self.autoTime.start()
+		self.gyro.reset()
 		rSide = 0
 		lSide = 0
 		wantedSpeed = 60
@@ -79,6 +80,7 @@ class MyRobot(wp.SampleRobot):
 		#reset encoders
 		self.encdRight.reset()
 		self.encdLeft.reset()
+		self.gyro.reset()
 		encval = 0
 		dtGain = 0.075 
 		encval = 0
