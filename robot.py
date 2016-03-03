@@ -14,7 +14,7 @@ try:
 	camServ.startAutomaticCapture(usbCam)
 except:
 	pass
-
+	
 class MyRobot(wp.SampleRobot):
 
 
@@ -61,7 +61,7 @@ class MyRobot(wp.SampleRobot):
 				self.autoTime.stop()
 				setR = 0
 				setL = 0
-				
+
 			self.motorFrontRight.set(setR * -1)
 			self.motorMiddleRight.set(setR)
 			self.motorBackRight.set(setR * -1)	
