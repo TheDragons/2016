@@ -48,12 +48,14 @@ class MyRobot(wp.SampleRobot):
 		self.autoTime.stop()
 		self.autoTime.start()
 		self.gyro.reset()
+		self.encdLeft.reset()
+		self.encdRight.reset()
 		rSide = 0
 		lSide = 0
 		wantedSpeed = 60
 		speedGain = 100	
 		while self.isAutonomous() and self.isEnabled():
-			if(self.autoTime.get() < 7):
+			if(self.encdLeft.get() < 4000 and self.encdRight.get() < 4000 and self.encdLeft.get() > -1 and self.encdRight.get() > -1):
 				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.75, -0.75)
 				#setR = rf.speedHold(self.encdRight.getRate(), wantedSpeed, speedGain) 
 				#setL = rf.speedHold(self.encdLeft.getRate(), wantedSpeed, speedGain) 
@@ -68,6 +70,8 @@ class MyRobot(wp.SampleRobot):
 			self.motorFrontLeft.set(setL)
 			self.motorMiddleLeft.set(setL * -1)
 			self.motorBackLeft.set(setL)
+			print("Right Side Values: " + str(setR))
+			print("Left Side Values: " + str(setL))
 
 	def disabled(self):
 		pass
