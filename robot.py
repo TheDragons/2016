@@ -3,7 +3,9 @@
 import wpilib as wp
 import robotfuncs as rf
 import time as tm
-#from networktables import NetworkTable as NT
+from networktables import NetworkTable as NT
+
+
 
 try:
 	camServ = wp.CameraServer()
@@ -20,6 +22,7 @@ class MyRobot(wp.SampleRobot):
 
 	def robotInit(self):
 		'''Robot initialization function'''
+		
 		self.motorFrontRight = wp.VictorSP(1)
 		self.motorBackRight = wp.VictorSP(3)
 		self.motorMiddleRight = wp.VictorSP(5)
@@ -39,39 +42,60 @@ class MyRobot(wp.SampleRobot):
 		self.intakeSensor = wp.DigitalInput(4)
 		self.autoTime = wp.Timer()
 		self.intakeTime = wp.Timer()
-		#self.sd = wp.SmartDashboard() # NT.getTable('SmartDashboard') #the smart dashboard communication
 		#calibrate gyro
 		self.gyro.calibrate() 
 
 	def autonomous(self):
-		self.autoTime.reset()
-		self.autoTime.stop()
-		self.autoTime.start()
 		self.gyro.reset()
 		self.encdLeft.reset()
 		self.encdRight.reset()
 		rSide = 0
 		lSide = 0
-		wantedSpeed = 60
-		speedGain = 100	
+		straightAngle = 0
+		turnAngle = 15
+		angleGain = 100	 
+		pos1 = 100
+		pos2 = 200
+		pos3 = 100
+		intakeMotorSpeed = 0
+		stage1 = True
+		stage2 = False
+		stage3 = False
 		while self.isAutonomous() and self.isEnabled():
-			if(self.encdLeft.get() < 4000 and self.encdRight.get() < 4000 and self.encdLeft.get() > -1 and self.encdRight.get() > -1):
+			if(abs(self.encdLeft.get()) < pos1 and abs(self.encdRight.get()) < pos1 and stage1):
 				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.75, -0.75)
-				#setR = rf.speedHold(self.encdRight.getRate(), wantedSpeed, speedGain) 
-				#setL = rf.speedHold(self.encdLeft.getRate(), wantedSpeed, speedGain) 
+				stage2 = True
+			elif(abs(self.encdLeft.get()) < pos2 and abs(self.encdRight.get()) < pos2 and stage2):
+				stage1 = False
+				stage3 = True
+				setR, setL = rf.angleFunc(self.gyro.getAngle(), turnAngle, angleGain)
+				self.encdLeft.reset()
+				self.encdRight.reset()
+			elif(abs(self.encdLeft.get()) < pos3 and abs(self.encdRight.get()) < pos3 and stage3):
+				stage2 = False
+				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.75, -0.75)
 			else:
-				self.autoTime.stop()
 				setR = 0
 				setL = 0
-
+				stage3 = False
+				if(self.intakeTime.running == False):
+					self.intakeTime.start()
+				if(self.intakeTime.get() < 0.5):
+					intakeMotorSpeed = -1
+				else:
+					intakeMotorSpeed = 0
+					self.intakeTime.stop()
+					self.intakeTime.reset()
+				
 			self.motorFrontRight.set(setR * -1)
 			self.motorMiddleRight.set(setR)
 			self.motorBackRight.set(setR * -1)	
 			self.motorFrontLeft.set(setL)
 			self.motorMiddleLeft.set(setL * -1)
 			self.motorBackLeft.set(setL)
-			print("Right Side Values: " + str(setR))
-			print("Left Side Values: " + str(setL))
+			self.intakeMotor.set(intakeMotorSpeed)
+			print("Right Side Encoder: " + str(self.encdRight.get()))
+			print("Left Side Encoder: " + str(self.encdLeft.get()))
 
 	def disabled(self):
 		pass
@@ -196,7 +220,8 @@ class MyRobot(wp.SampleRobot):
 			intakeMotorSpeed = 0
 			
 			#smartdashboard
-			#self.sd.putString("DB/String 0", "encdRight: " + str(self.encdRight.get())[0:4])
+			wp.SmartDashboard.putString("DB/String 0", "Gyro: " + str(self.gyro.getAngle())[0:4])
+			
 			print("encdRight: " + str(self.encdRight.get()))
 			print("encdLeft: " + str(self.encdLeft.get()))	
 			print("encdLeftRate: " + str(self.encdLeft.getRate()))	

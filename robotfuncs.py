@@ -23,10 +23,11 @@ def gyroFunc(angle, rSide, lSide):
 	R = rSide - (angle / gain)
 	L = lSide + (angle / gain)
 	return R, L
-def turnFunc(angle, wantedAngle, gain):
+	
+def angleFunc(angle, wantedAngle, gain):
 	position = (angle - wantedAngle) / gain
-	return position
-
+	return position, (positiion * -1)
+	
 def deadband(side, dtGain):
 	setSide = (side/abs(side))*((1/(1-dtGain))*(abs(side)-dtGain))
 	return setSide
