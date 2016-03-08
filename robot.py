@@ -30,8 +30,8 @@ class MyRobot(wp.SampleRobot):
 		self.motorBackLeft = wp.VictorSP(4)
 		self.motorMiddleLeft = wp.VictorSP(6)
 		self.intakeMotor = wp.VictorSP(9)
-		self.encdRight = wp.Encoder(0, 1)
-		self.encdLeft = wp.Encoder(2,3)
+		self.encdLeft = wp.Encoder(0, 1)
+		self.encdRight = wp.Encoder(2,3)
 		self.gyro = wp.AnalogGyro(0, center = None, offset = None)
 		self.compressor = wp.Compressor()
 		self.high = wp.Solenoid(1)
@@ -52,28 +52,29 @@ class MyRobot(wp.SampleRobot):
 		rSide = 0
 		lSide = 0
 		straightAngle = 0
-		turnAngle = 15
+		turnAngle = 30
 		angleGain = 100	 
-		pos1 = 100
-		pos2 = 200
-		pos3 = 100
+		#print(wp.SmartDashboard.getNumber())
+		pos1 = 1000
+		pos2 = 30
+		pos3 = 1000
 		intakeMotorSpeed = 0
 		stage1 = True
 		stage2 = False
 		stage3 = False
 		while self.isAutonomous() and self.isEnabled():
-			if(abs(self.encdLeft.get()) < pos1 and abs(self.encdRight.get()) < pos1 and stage1):
-				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.75, -0.75)
+			if(abs(self.encdRight.get()) < pos1 and stage1):  #abs(self.encdLeft.get()) < pos1 and 
+				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.3, -0.3)
 				stage2 = True
-			elif(abs(self.encdLeft.get()) < pos2 and abs(self.encdRight.get()) < pos2 and stage2):
+			elif(abs(self.encdRight.get()) < pos2 and stage2): #abs(self.encdLeft.get()) < pos2 and
 				stage1 = False
 				stage3 = True
 				setR, setL = rf.angleFunc(self.gyro.getAngle(), turnAngle, angleGain)
 				self.encdLeft.reset()
 				self.encdRight.reset()
-			elif(abs(self.encdLeft.get()) < pos3 and abs(self.encdRight.get()) < pos3 and stage3):
+			elif(abs(self.encdRight.get()) < pos3 and stage3): #abs(self.encdLeft.get()) < pos3 and 
 				stage2 = False
-				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.75, -0.75)
+				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.3, -0.3)
 			else:
 				setR = 0
 				setL = 0
@@ -94,8 +95,8 @@ class MyRobot(wp.SampleRobot):
 			self.motorMiddleLeft.set(setL * -1)
 			self.motorBackLeft.set(setL)
 			self.intakeMotor.set(intakeMotorSpeed)
-			print("Right Side Encoder: " + str(self.encdRight.get()))
-			print("Left Side Encoder: " + str(self.encdLeft.get()))
+			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
+			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
 
 	def disabled(self):
 		pass
@@ -220,13 +221,10 @@ class MyRobot(wp.SampleRobot):
 			intakeMotorSpeed = 0
 			
 			#smartdashboard
-			wp.SmartDashboard.putString("DB/String 0", "Gyro: " + str(self.gyro.getAngle())[0:4])
-			
-			print("encdRight: " + str(self.encdRight.get()))
-			print("encdLeft: " + str(self.encdLeft.get()))	
-			print("encdLeftRate: " + str(self.encdLeft.getRate()))	
-			print("gyro: " + str(self.gyro.getAngle()))
-			print("sensor: " + str(self.intakeSensor.get()))
+			wp.SmartDashboard.putString("Gyro:",round(self.gyro.getAngle(), 2))
+			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
+			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
+			wp.SmartDashboard.putString("Sensor:",self.intakeSensor.get())
 
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
