@@ -5,8 +5,6 @@ import robotfuncs as rf
 import time as tm
 from networktables import NetworkTable as NT
 
-
-
 try:
 	camServ = wp.CameraServer()
 	usbCam = wp.USBCamera()
@@ -30,18 +28,25 @@ class MyRobot(wp.SampleRobot):
 		self.motorBackLeft = wp.VictorSP(4)
 		self.motorMiddleLeft = wp.VictorSP(6)
 		self.intakeMotor = wp.VictorSP(9)
+		self.extIntakeMotor = wp.VictorSP(10) #New 3/8/16
 		self.encdLeft = wp.Encoder(0, 1)
 		self.encdRight = wp.Encoder(2,3)
 		self.gyro = wp.AnalogGyro(0, center = None, offset = None)
 		self.compressor = wp.Compressor()
 		self.high = wp.Solenoid(1)
 		self.low = wp.Solenoid(2)
+		self.intakeOut = wp.Solenoid(3)		#New 3/8/16
+		self.intakeIn = wp.Solenoid(4)      #New 3/8/16
+		self.ptoEngage = wp.Solenoid(5)     #New 3/8/16
+		self.ptoDisengage = wp.Solenoid(6)  #New 3/8/16
 		self.stick = wp.Joystick(0)
 		self.stick2 = wp.Joystick(1)
 		self.stick3 = wp.Joystick(2)
 		self.intakeSensor = wp.DigitalInput(4)
 		self.autoTime = wp.Timer()
 		self.intakeTime = wp.Timer()
+		self.intakeLight = wp.relay(0)  #New 3/8/16
+		
 		#calibrate gyro
 		self.gyro.calibrate() 
 
@@ -224,7 +229,7 @@ class MyRobot(wp.SampleRobot):
 			wp.SmartDashboard.putString("Gyro:",round(self.gyro.getAngle(), 2))
 			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
 			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
-			wp.SmartDashboard.putString("Sensor:",self.intakeSensor.get())
+			wp.SmartDashboard.putBoolean("Sensor:",self.intakeSensor.get())
 
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
