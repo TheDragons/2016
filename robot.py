@@ -28,7 +28,8 @@ class MyRobot(wp.SampleRobot):
 		self.motorBackLeft = wp.VictorSP(4)
 		self.motorMiddleLeft = wp.VictorSP(6)
 		self.intakeMotor = wp.VictorSP(9)
-		self.extIntakeMotor = wp.VictorSP(10) #New 3/8/16
+		self.extIntakeMotor = wp.VictorSP(7) #New 3/8/16
+		self.liftMotor = wp.VictorSP(8)  #New 3/8/16
 		self.encdLeft = wp.Encoder(0, 1)
 		self.encdRight = wp.Encoder(2,3)
 		self.gyro = wp.AnalogGyro(0, center = None, offset = None)
@@ -45,10 +46,17 @@ class MyRobot(wp.SampleRobot):
 		self.intakeSensor = wp.DigitalInput(4)
 		self.autoTime = wp.Timer()
 		self.intakeTime = wp.Timer()
-		self.intakeLight = wp.relay(0)  #New 3/8/16
+		#self.intakeLight = wp.Relay(0)  #New 3/8/16
 		
 		#calibrate gyro
 		self.gyro.calibrate() 
+		
+		auto2 = False   #autoNums are for selecting types of auto
+		auto3 = False
+		
+		wp.SmartDashboard.putBoolean("Auto1:", False)
+		
+		
 
 	def autonomous(self):
 		self.gyro.reset()
@@ -65,8 +73,9 @@ class MyRobot(wp.SampleRobot):
 		pos3 = 1000
 		intakeMotorSpeed = 0
 		stage1 = True
-		stage2 = False
+		stage2 = False #stageNums are for the individual stages of auto
 		stage3 = False
+		auto1 = wp.SmartDashboard.getBoolean("Auto1:", False)
 		while self.isAutonomous() and self.isEnabled():
 			if(abs(self.encdRight.get()) < pos1 and stage1):  #abs(self.encdLeft.get()) < pos1 and 
 				setR, setL = rf.gyroFunc(self.gyro.getAngle(), -0.3, -0.3)
@@ -102,6 +111,8 @@ class MyRobot(wp.SampleRobot):
 			self.intakeMotor.set(intakeMotorSpeed)
 			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
 			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
+			wp.SmartDashboard.putBoolean("Auton Selection", auto1)
+			
 
 	def disabled(self):
 		pass
@@ -129,6 +140,9 @@ class MyRobot(wp.SampleRobot):
 		previousIntake = False
 		self.intakeTime.reset()
 		self.intakeTime.stop()
+		test = 1
+		wp.SmartDashboard.putNumber("TestNumber:", test)
+		auto1 = wp.SmartDashboard.getBoolean("Auto1:", False)
 		while self.isOperatorControl() and self.isEnabled():
 			#output to dashboard
 			joyValY = self.stick.getY()
@@ -229,7 +243,12 @@ class MyRobot(wp.SampleRobot):
 			wp.SmartDashboard.putString("Gyro:",round(self.gyro.getAngle(), 2))
 			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
 			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
+			wp.SmartDashboard.putNumber("Right Motor:", setR)
+			wp.SmartDashboard.putNumber("Left Motor:", setL)
 			wp.SmartDashboard.putBoolean("Sensor:",self.intakeSensor.get())
+			wp.SmartDashboard.getNumber("Test the GetNumber:", test)
+			wp.SmartDashboard.putNumber("Test of the test:", wp.SmartDashboard.getNumber("TestNumber:", 1))
+			wp.SmartDashboard.putBoolean("Auton Selection", auto1)
 
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
