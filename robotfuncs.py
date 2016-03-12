@@ -18,10 +18,9 @@ def driveTypeFunc(past, driveType, driveTypeButton):
 		driveType = not driveType
 	past = driveTypeButton
 
-def gyroFunc(angle, rSide, lSide):
-	gain = 43
-	R = rSide + (angle/ gain)
-	L = lSide - (angle/ gain)
+def gyroFunc(currentAngle, holdAngle, speed, gain):
+	R = speed + ((currentAngle - holdAngle)/ gain)
+	L = speed - ((currentAngle - holdAngle)/ gain)
 	return R, L
 	
 def angleFunc(angle, wantedAngle, gain):
