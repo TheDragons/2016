@@ -19,14 +19,14 @@ def driveTypeFunc(past, driveType, driveTypeButton):
 	past = driveTypeButton
 
 def gyroFunc(angle, rSide, lSide):
-	gain = 100
-	R = rSide - (angle / gain)
-	L = lSide + (angle / gain)
+	gain = 43
+	R = rSide + (angle/ gain)
+	L = lSide - (angle/ gain)
 	return R, L
 	
 def angleFunc(angle, wantedAngle, gain):
 	position = (angle - wantedAngle) / gain
-	return position, (positiion * -1)
+	return position, (position * -1)
 	
 def deadband(side, dtGain):
 	setSide = (side/abs(side))*((1/(1-dtGain))*(abs(side)-dtGain))
