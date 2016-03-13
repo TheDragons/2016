@@ -1,3 +1,3 @@
 @echo off
-py robot.py deploy
+python robot.py deploy
 pause

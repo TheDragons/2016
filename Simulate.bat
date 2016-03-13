@@ -1,3 +1,3 @@
 @echo off
-py robot.py sim
+python robot.py sim
 pause

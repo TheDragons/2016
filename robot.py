@@ -44,9 +44,6 @@ class MyRobot(wp.SampleRobot):
 		#calibrate gyro
 		self.gyro.calibrate() 
 		
-		autoDesc1 = "Auto1 goes under lowbar and into goal, Might not work!"
-		autoDesc2 = "Auto2 just goes straight for a couple seconds, usefull for crossing defences."
-		
 		wp.SmartDashboard.putBoolean("Auto1:", False)
 		wp.SmartDashboard.putBoolean("Auto2:", False)
 		wp.SmartDashboard.putBoolean("Auto2:", False)
@@ -54,8 +51,6 @@ class MyRobot(wp.SampleRobot):
 		wp.SmartDashboard.putNumber("pos 2:", 40)
 		wp.SmartDashboard.putNumber("pos 3:", 6550)
 		wp.SmartDashboard.putNumber("pos 5:", 6000)
-		wp.SmartDashboard.putString("Auton 1 Description:", autoDesc1)
-		wp.SmartDashboard.putString("Auton 2 Description:", autoDesc2)
 	def autonomous(self):
 		self.gyro.calibrate()
 		self.encdLeft.reset()
@@ -107,7 +102,7 @@ class MyRobot(wp.SampleRobot):
 				
 			if(auto2):
 				if(abs(self.encdRight.get()) < pos5): 
-					setR, setL = rf.gyroFunc(self.gyro.getAngle(), 0, -0.9, -0.9)                 #USE FOR DRIVING STRAIGHT OVER DEFENCE
+					setR, setL = rf.gyroFunc(self.gyro.getAngle(), 0, -0.9, straitGain)                 #USE FOR DRIVING STRAIGHT OVER DEFENCE
 				else:
 					setR = 0
 					setL = 0
@@ -126,13 +121,13 @@ class MyRobot(wp.SampleRobot):
 			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
 			wp.SmartDashboard.putNumber("Right Motor:", setR)
 			wp.SmartDashboard.putNumber("Left Motor:", setL)
-			wp.SmartDashboard.putString("Gyro:",round(self.gyro.getAngle(), 2))
+			wp.SmartDashboard.putNumber("Gyro:",round(self.gyro.getAngle(), 2))
 			
 	def disabled(self):
 		while self.isDisabled():
 			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
 			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
-			wp.SmartDashboard.putString("Gyro:",round(self.gyro.getAngle(), 2))
+			wp.SmartDashboard.putNumber("Gyro:",round(self.gyro.getAngle(), 2))
 
 	def operatorControl(self):
 		past2 = False #used for fliping drive train
@@ -230,7 +225,6 @@ class MyRobot(wp.SampleRobot):
 			if(lowButton and shiftSet == 1):
 				shiftSet = 2
 			
-			 
 			#pto engage/disengage
 			if(ptoEngage and ptoSet == 2):
 				ptoSet = 1
@@ -238,15 +232,8 @@ class MyRobot(wp.SampleRobot):
 				ptoSet = 2
 				
 			##This sets our dead band on the joystick
-			if ((rSide <= dtGain*-1) or (rSide >= dtGain)):
-				setR = rf.deadband(rSide, dtGain)
-			else:
-				setR = 0
-			
-			if ((lSide <= dtGain*-1) or (lSide >= dtGain)):
-				setL = rf.deadband(lSide, dtGain)
-			else:
-				setL = 0
+			setR = rf.deadband(rSide, dtGain)
+			setL = rf.deadband(lSide, dtGain)
 			
 			if (gyroButton):
 				self.gyro.calibrate()
@@ -257,18 +244,21 @@ class MyRobot(wp.SampleRobot):
 			self.motorFrontRight.set(setR * -1)
 			self.motorBackRight.set(setR * -1)
 			self.motorMiddleRight.set(setR)			# Reversed because of the dynamics of the transmission
+			
 			self.motorFrontLeft.set(setL)
 			self.motorBackLeft.set(setL)
 			self.motorMiddleLeft.set(setL * -1)		# Reversed because of the dynamics of the transmission
+			
 			self.intakeMotor.set(intakeMotorSpeed)
 			self.extIntakeMotor.set(extIntakeMotorSpeed)
 			self.shifter.set(shiftSet)
 			self.extIntakeSol.set(extIntakeSet)
 			self.ptoSol.set(ptoSet)
+			
 			intakeMotorSpeed = 0
 			
 			#smartdashboard
-			wp.SmartDashboard.putString("Gyro:",round(self.gyro.getAngle(), 2))
+			wp.SmartDashboard.putNumber("Gyro:",round(self.gyro.getAngle(), 2))
 			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
 			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
 			wp.SmartDashboard.putNumber("Right Motor:", setR)

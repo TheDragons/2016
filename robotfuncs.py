@@ -28,7 +28,11 @@ def angleFunc(angle, wantedAngle, gain):
 	return position, (position * -1)
 	
 def deadband(side, dtGain):
-	setSide = (side/abs(side))*((1/(1-dtGain))*(abs(side)-dtGain))
+	if ((side <= dtGain*-1) or (side >= dtGain)):
+		setSide = (side/abs(side))*((1/(1-dtGain))*(abs(side)-dtGain))
+	else:
+		setSide = 0
+		
 	return setSide
 
 def speedHold(encdRate, wantedRate, gain):

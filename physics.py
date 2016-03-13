@@ -12,9 +12,8 @@ class PhysicsEngine(object):
 			:param physics_controller: `pyfrc.physics.core.Physics` object
 									   to communicate simulation effects to
 		'''
-		
 		self.physics_controller = physics_controller
-		self.physics_controller
+		physics_controller.add_gyro_channel(0)
 		self.lcount = 0 
 		self.rcount = 0 
 		self.lcountP = 0 
@@ -48,20 +47,18 @@ class PhysicsEngine(object):
 		lcountP = self.lcount 
 		rcountP = self.rcount 
 
-		self.lcount += (lf_motor + lr_motor + lm_motor)/6
-		self.rcount += (rf_motor + rr_motor + rm_motor)/6
+		self.lcount += (lf_motor + lr_motor + lm_motor)/4
+		self.rcount += (rf_motor + rr_motor + rm_motor)/4
 		
 		if(self.lcountP == self.lcount):
 			self.encodeLRate = 0
-		else:
+		elif(self.loopTime != 0):
 			self.encodeLRate = (self.lcount - self.lcountP)/self.loopTime
 		
 		if(self.rcountP == self.rcount):
 			self.encodeRRate = 0
-		else:
+		elif(self.loopTime != 0):
 			self.encodeRRate = (self.rcount - self.rcountP)/self.loopTime
-
-		print(self.encodeLRate)
 		
 		self.encodeLRate = 0
 		self.encodeRRate = 0
@@ -81,5 +78,4 @@ class PhysicsEngine(object):
 		lside = (lf_motor + lr_motor + lm_motor)/3
 		
 		vx, vy = drivetrains.two_motor_drivetrain(-rside, lside)
-		#self.physics_controller.vector_drive(vx, vy, 0, tm_diff)
 		self.physics_controller.drive(vx, -vy, tm_diff)
