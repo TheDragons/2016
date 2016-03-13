@@ -1,6 +1,7 @@
 from pyfrc.physics import drivetrains
 from config import *
 import time
+from pprint import pprint
 
 class PhysicsEngine(object):
 	'''
@@ -25,15 +26,26 @@ class PhysicsEngine(object):
 		
 		self.encodeLRate = 0
 		self.encodeRRate = 0
+		self.robot_enabled = False
+		
 	def update_sim(self, hal_data, now, tm_diff):
 		# Simulate the drivetrain
 		# -> Remember, in the constructor we inverted the left motors, so
 		#	invert the motor values here too!
+			
 		if(self.currentTime != self.pastTime):
 			self.loopTime = self.currentTime - self.pastTime
 			
 		self.pastTime = self.currentTime
 		self.currentTime = time.process_time()
+		
+		#if(not self.robot_enabled):
+		#	hal_data['pwm'][backLeftPort]['value'] = 0
+		#	hal_data['pwm'][backRightPort]['value'] = 0
+		#	hal_data['pwm'][frontLeftPort]['value'] = 0
+		#	hal_data['pwm'][frontRightPort]['value'] = 0
+		#	hal_data['pwm'][middleLeftPort]['value'] = 0
+		#	hal_data['pwm'][middleRightPort]['value'] = 0
 		
 		lf_motor = -hal_data['pwm'][backLeftPort]['value']
 		rf_motor = hal_data['pwm'][backRightPort]['value']
@@ -43,7 +55,7 @@ class PhysicsEngine(object):
 		
 		lm_motor = hal_data['pwm'][middleLeftPort]['value']
 		rm_motor = -hal_data['pwm'][middleRightPort]['value']
-
+			
 		lcountP = self.lcount 
 		rcountP = self.rcount 
 
@@ -78,4 +90,5 @@ class PhysicsEngine(object):
 		lside = (lf_motor + lr_motor + lm_motor)/3
 		
 		vx, vy = drivetrains.two_motor_drivetrain(-rside, lside)
+		
 		self.physics_controller.drive(vx, -vy, tm_diff)

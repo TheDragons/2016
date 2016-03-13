@@ -4,6 +4,15 @@ import wpilib as wp
 import robotfuncs as rf
 import time as tm
 from networktables import NetworkTable as NT
+from threading import Timer
+
+#this is an experment, this will run reguardless of robot state, teleop, auto, disabled, test any state but off.
+def update_dash(roboSelf): 
+	wp.SmartDashboard.putNumber("Gyro:",round(roboSelf.gyro.getAngle(), 2))
+	wp.SmartDashboard.putNumber("Right Encoder:",roboSelf.encdRight.get())
+	wp.SmartDashboard.putNumber("Left Encoder:",roboSelf.encdLeft.get())
+	wp.SmartDashboard.putBoolean("Sensor:",roboSelf.intakeSensor.get())
+	Timer(0.1, update_dash, [roboSelf]).start()
 
 try:
 	camServ = wp.CameraServer()
@@ -44,15 +53,17 @@ class MyRobot(wp.SampleRobot):
 		#calibrate gyro
 		self.gyro.calibrate() 
 		
+		#update dashboard
+		update_dash(self)
+				
 		wp.SmartDashboard.putBoolean("Auto1:", False)
-		wp.SmartDashboard.putBoolean("Auto2:", False)
 		wp.SmartDashboard.putBoolean("Auto2:", False)
 		wp.SmartDashboard.putNumber("pos 1:", 9825)
 		wp.SmartDashboard.putNumber("pos 2:", 40)
 		wp.SmartDashboard.putNumber("pos 3:", 6550)
 		wp.SmartDashboard.putNumber("pos 5:", 6000)
 	def autonomous(self):
-		self.gyro.calibrate()
+		self.gyro.reset()
 		self.encdLeft.reset()
 		self.encdRight.reset()
 		rSide = 0
@@ -117,17 +128,11 @@ class MyRobot(wp.SampleRobot):
 			self.intakeMotor.set(intakeMotorSpeed)
 			self.ptoSol.set(1)
 			
-			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
-			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
 			wp.SmartDashboard.putNumber("Right Motor:", setR)
 			wp.SmartDashboard.putNumber("Left Motor:", setL)
-			wp.SmartDashboard.putNumber("Gyro:",round(self.gyro.getAngle(), 2))
 			
 	def disabled(self):
-		while self.isDisabled():
-			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
-			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
-			wp.SmartDashboard.putNumber("Gyro:",round(self.gyro.getAngle(), 2))
+		pass
 
 	def operatorControl(self):
 		past2 = False #used for fliping drive train
@@ -258,12 +263,8 @@ class MyRobot(wp.SampleRobot):
 			intakeMotorSpeed = 0
 			
 			#smartdashboard
-			wp.SmartDashboard.putNumber("Gyro:",round(self.gyro.getAngle(), 2))
-			wp.SmartDashboard.putNumber("Right Encoder:",self.encdRight.get())
-			wp.SmartDashboard.putNumber("Left Encoder:",self.encdLeft.get())
 			wp.SmartDashboard.putNumber("Right Motor:", setR)
 			wp.SmartDashboard.putNumber("Left Motor:", setL)
-			wp.SmartDashboard.putBoolean("Sensor:",self.intakeSensor.get())
 
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
