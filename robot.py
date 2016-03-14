@@ -7,12 +7,42 @@ from networktables import NetworkTable as NT
 from threading import Timer
 
 #this is an experment, this will run reguardless of robot state, teleop, auto, disabled, test any state but off.
-def update_dash(roboSelf): 
+def update_dash(roboSelf, pastAuto1, pastAuto2): 
 	wp.SmartDashboard.putNumber("Gyro:",round(roboSelf.gyro.getAngle(), 2))
 	wp.SmartDashboard.putNumber("Right Encoder:",roboSelf.encdRight.get())
 	wp.SmartDashboard.putNumber("Left Encoder:",roboSelf.encdLeft.get())
 	wp.SmartDashboard.putBoolean("Sensor:",roboSelf.intakeSensor.get())
-	Timer(0.1, update_dash, [roboSelf]).start()
+	
+	auto1 = wp.SmartDashboard.getBoolean("Auto1:", True)
+	auto2 = wp.SmartDashboard.getBoolean("Auto2:", True)
+	calGyro = wp.SmartDashboard.getBoolean("calGyro:", True)
+	encodeReset = wp.SmartDashboard.getBoolean("resetEnc:", True)
+	
+	if(not pastAuto1 and auto1):
+		wp.SmartDashboard.putBoolean("Auto2:", False)
+		auto2 = False
+	
+	if(not pastAuto2 and auto2):
+		wp.SmartDashboard.putBoolean("Auto1:", False)
+		auto1 = False
+	
+	if(auto1 and auto2):
+		wp.SmartDashboard.putBoolean("Auto1:", False)
+		wp.SmartDashboard.putBoolean("Auto2:", False)
+		
+	if(calGyro):
+		roboSelf.gyro.calibrate()
+		wp.SmartDashboard.putBoolean("calGyro:", False)
+		
+	if(encodeReset):
+		roboSelf.encdRight.reset()
+		roboSelf.encdLeft.reset()
+		wp.SmartDashboard.putBoolean("resetEnc:", False)
+		
+	pastAuto2 = auto2
+	pastAuto1 = auto1
+	
+	Timer(0.02, update_dash, [roboSelf, pastAuto1, pastAuto2]).start()
 
 try:
 	camServ = wp.CameraServer()
@@ -33,12 +63,16 @@ class MyRobot(wp.SampleRobot):
 		self.motorFrontLeft = wp.VictorSP(2)
 		self.motorBackLeft = wp.VictorSP(4)
 		self.motorMiddleLeft = wp.VictorSP(6)
+		
 		self.intakeMotor = wp.VictorSP(9)
 		self.extIntakeMotor = wp.VictorSP(7)
 		self.liftMotor = wp.VictorSP(8)
+		
 		self.encdLeft = wp.Encoder(0, 1)
 		self.encdRight = wp.Encoder(2,3)
+		
 		self.gyro = wp.AnalogGyro(0, center = None, offset = None)
+		
 		self.compressor = wp.Compressor()
 		self.shifter = wp.DoubleSolenoid(0,1)
 		self.extIntakeSol = wp.DoubleSolenoid(2,3)
@@ -54,14 +88,14 @@ class MyRobot(wp.SampleRobot):
 		self.gyro.calibrate() 
 		
 		#update dashboard
-		update_dash(self)
-				
-		wp.SmartDashboard.putBoolean("Auto1:", False)
-		wp.SmartDashboard.putBoolean("Auto2:", False)
-		wp.SmartDashboard.putNumber("pos 1:", 9825)
-		wp.SmartDashboard.putNumber("pos 2:", 40)
-		wp.SmartDashboard.putNumber("pos 3:", 6550)
-		wp.SmartDashboard.putNumber("pos 5:", 6000)
+		update_dash(self, False, False)
+						
+		#wp.SmartDashboard.putBoolean("Auto1:", False)
+		#wp.SmartDashboard.putBoolean("Auto2:", False)
+		#wp.SmartDashboard.putNumber("pos 1:", 9825)
+		#wp.SmartDashboard.putNumber("pos 2:", 40)
+		#wp.SmartDashboard.putNumber("pos 3:", 6550)
+		#wp.SmartDashboard.putNumber("pos 5:", 6000)
 	def autonomous(self):
 		self.gyro.reset()
 		self.encdLeft.reset()
@@ -109,7 +143,6 @@ class MyRobot(wp.SampleRobot):
 					setL = 0
 					stage3 = False
 				self.extIntakeSol.set(extIntakeSet)
-				wp.SmartDashboard.putBoolean("Auto2:", False)
 				
 			if(auto2):
 				if(abs(self.encdRight.get()) < pos5): 
@@ -117,7 +150,6 @@ class MyRobot(wp.SampleRobot):
 				else:
 					setR = 0
 					setL = 0
-				wp.SmartDashboard.putBoolean("Auto1:", False)
 				
 			self.motorFrontRight.set(setR * -1)
 			self.motorMiddleRight.set(setR)
