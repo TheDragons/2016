@@ -5,6 +5,7 @@ import robotfuncs as rf
 import time as tm
 from networktables import NetworkTable as NT
 from threading import Timer
+import wpiJoystickOverlay as joy
 
 #this is an experment, this will run reguardless of robot state, teleop, auto, disabled, test any state but off.
 def update_dash(roboSelf, pastAuto1, pastAuto2): 
@@ -13,9 +14,11 @@ def update_dash(roboSelf, pastAuto1, pastAuto2):
 	wp.SmartDashboard.putNumber("Left Encoder:",roboSelf.encdLeft.get())
 	wp.SmartDashboard.putBoolean("Sensor:",roboSelf.intakeSensor.get())
 	
+	
 	auto1 = wp.SmartDashboard.getBoolean("Auto1:", True)
 	auto2 = wp.SmartDashboard.getBoolean("Auto2:", True)
 	calGyro = wp.SmartDashboard.getBoolean("calGyro:", True)
+	resetGyro = wp.SmartDashboard.getBoolean("resetGyro:", True)
 	encodeReset = wp.SmartDashboard.getBoolean("resetEnc:", True)
 	
 	if(not pastAuto1 and auto1):
@@ -28,21 +31,18 @@ def update_dash(roboSelf, pastAuto1, pastAuto2):
 	
 	if(auto1 and auto2):
 		wp.SmartDashboard.putBoolean("Auto1:", False)
-		wp.SmartDashboard.putBoolean("Auto2:", False)
-		
-	if(calGyro):
-		roboSelf.gyro.calibrate()
 		wp.SmartDashboard.putBoolean("calGyro:", False)
+		
+	if(resetGyro):
+		roboSelf.gyro.reset()
+		wp.SmartDashboard.putBoolean("resetGyro:", False)
 		
 	if(encodeReset):
 		roboSelf.encdRight.reset()
 		roboSelf.encdLeft.reset()
 		wp.SmartDashboard.putBoolean("resetEnc:", False)
-		
-	pastAuto2 = auto2
-	pastAuto1 = auto1
 	
-	Timer(0.02, update_dash, [roboSelf, pastAuto1, pastAuto2]).start()
+	Timer(0.02, update_dash, [roboSelf, auto1, auto2]).start()
 
 try:
 	camServ = wp.CameraServer()
@@ -77,9 +77,9 @@ class MyRobot(wp.SampleRobot):
 		self.shifter = wp.DoubleSolenoid(0,1)
 		self.extIntakeSol = wp.DoubleSolenoid(2,3)
 		self.ptoSol = wp.DoubleSolenoid(4,5)
-		self.stick = wp.Joystick(0)
-		self.stick2 = wp.Joystick(1)
-		self.stick3 = wp.Joystick(2)
+		self.stick = joy.joyClass(0)
+		self.stick2 = joy.joyClass(1)
+		self.stick3 = joy.joyClass(2)
 		self.intakeSensor = wp.DigitalInput(4)
 		self.autoTime = wp.Timer()
 		self.intakeTime = wp.Timer()
@@ -88,7 +88,7 @@ class MyRobot(wp.SampleRobot):
 		self.gyro.calibrate() 
 		
 		#update dashboard
-		update_dash(self, False, False)
+		update_dash(self, True, True)
 						
 		#wp.SmartDashboard.putBoolean("Auto1:", False)
 		#wp.SmartDashboard.putBoolean("Auto2:", False)
@@ -194,21 +194,23 @@ class MyRobot(wp.SampleRobot):
 			#output to dashboard
 			joyValY = self.stick.getY()
 			joyValX = self.stick.getX()
-			gyroButton = self.stick.getRawButton(8)
-			ptoDisengage = self.stick.getRawButton(10)
-			ptoEngage = self.stick.getRawButton(11)
+			gyroButton = self.stick.getButtonRise(8)
+			ptoDisengage = self.stick.getButtonRise(10)
+			ptoEngage = self.stick.getButtonRise(11)
 			
 			joyVal2 = self.stick2.getY()
-			driveSideButton = self.stick2.getRawButton(2)
-			lowButton = self.stick2.getRawButton(10)
-			highButton = self.stick2.getRawButton(11)
+			driveSideButton = self.stick2.getButtonRise(2)
+			lowButton = self.stick2.getButtonRise(10)
+			highButton = self.stick2.getButtonRise(11)
 			
-			extIntakeBackward = self.stick3.getRawButton(1)
-			extIntakeOutButton = self.stick3.getRawButton(6)
-			extIntakeInButton = self.stick3.getRawButton(7)
-			compressorButton = self.stick3.getRawButton(8)
-			intakeForward = self.stick3.getRawButton(10) 
-			intakeBackward = self.stick3.getRawButton(11)
+			extIntakeBackward = self.stick3.getButtonRise(1)
+			extIntakeOutButton = self.stick3.getButtonRise(6)
+			extIntakeInButton = self.stick3.getButtonRise(7)
+			compressorButton = self.stick3.getButtonRise(8)
+			intakeForward = self.stick3.getButtonRise(10) 
+			intakeBackward = self.stick3.getButtonRise(11)
+			
+			
 
 			if (past2 == False and driveSideButton == True):
 				flipVar = not flipVar
@@ -222,10 +224,11 @@ class MyRobot(wp.SampleRobot):
 			
 			#Intake
 			intakeMotorSpeed = 0
+			extIntakeMotorSpeed = 0
 			
-			if( previousIntake == False and intakeForward == True):
+			if(intakeForward):
 				intakeIsEnabled = not intakeIsEnabled
-
+			
 			if(intakeIsEnabled):
 				intakeMotorSpeed = 0.75
 				extIntakeMotorSpeed = -0.75
@@ -241,6 +244,7 @@ class MyRobot(wp.SampleRobot):
 						intakeIsEnabled = False
 						self.intakeTime.stop()
 						self.intakeTime.reset()
+			
 				
 			if(intakeBackward):
 				intakeMotorSpeed = -1 
@@ -248,7 +252,7 @@ class MyRobot(wp.SampleRobot):
 			if(extIntakeBackward):
 				extIntakeMotorSpeed = 1
 			
-			previousIntake = intakeForward
+			
 			
 			if(extIntakeInButton or (self.stick3.getY() <= -0.85)):
 				extIntakeSet = 2
@@ -267,11 +271,8 @@ class MyRobot(wp.SampleRobot):
 				ptoSet = 1
 			if(ptoDisengage and ptoSet == 1):
 				ptoSet = 2
-				
-			##This sets our dead band on the joystick
-			setR = rf.deadband(rSide, dtGain)
-			setL = rf.deadband(lSide, dtGain)
 			
+			#Calibrate the Gyro
 			if (gyroButton):
 				self.gyro.calibrate()
 				
@@ -292,11 +293,18 @@ class MyRobot(wp.SampleRobot):
 			self.extIntakeSol.set(extIntakeSet)
 			self.ptoSol.set(ptoSet)
 			
-			intakeMotorSpeed = 0
+			self.stick.updateClause()
+			self.stick2.updateClause()
+			self.stick3.updateClause()
+			
+			
+			intakeMotorSpeed = 0                                                                                                                                                              
 			
 			#smartdashboard
 			wp.SmartDashboard.putNumber("Right Motor:", setR)
 			wp.SmartDashboard.putNumber("Left Motor:", setL)
+			wp.SmartDashboard.putNumber("Left Stick:", self.stick.getY())
+			wp.SmartDashboard.putNumber("Right Stick:", self.stick2.getY())
 
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
