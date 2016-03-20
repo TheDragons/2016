@@ -107,10 +107,10 @@ class MyRobot(wp.SampleRobot):
 		turnGain = 40
 		straitGain = 43
 		
-		pos1 = wp.SmartDashboard.getNumber("pos 1:", 9825)
-		pos2 = wp.SmartDashboard.getNumber("pos 2:", 40)
-		pos3 = wp.SmartDashboard.getNumber("pos 3:", 6550)
-		pos5 = wp.SmartDashboard.getNumber("pos 5:", 6000)
+		wp.SmartDashboard.putNumber("pos 1:", 3900)
+		wp.SmartDashboard.putNumber("pos 2:", 64)
+		wp.SmartDashboard.putNumber("pos 3:", 3400)
+		wp.SmartDashboard.putNumber("pos 5:", 6000)
 		auto1 = wp.SmartDashboard.getBoolean("Auto1:", False)
 		auto2 = wp.SmartDashboard.getBoolean("Auto2:", False)
 		

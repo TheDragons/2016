@@ -1,0 +1,118 @@
+<xml version="1.0">
+<dashboard>
+	<widget field="calGyro:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="13" y="31"/>
+	</widget>
+	<widget field="resetGyro:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
+		<location x="128" y="262"/>
+		<width>100</width>
+		<height>24</height>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="452" y="408"/>
+		<property name="Text" value="encd/ticks"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="453" y="380"/>
+		<property name="Text" value="Degrees"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="452" y="349"/>
+		<property name="Text" value="encd/ticks"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="666" y="351"/>
+		<property name="Text" value="encd/ticks"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="596" y="323"/>
+		<property name="Text" value="Distance for Auto 2"/>
+	</static-widget>
+	<widget field="Left Stick:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="340"/>
+	</widget>
+	<widget field="Right Motor:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.ProgressBar">
+		<location x="505" y="49"/>
+		<property name="Maximum" value="1.0"/>
+		<property name="Minimum" value="-1.0"/>
+	</widget>
+	<widget field="Left Motor:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.ProgressBar">
+		<location x="505" y="19"/>
+		<property name="Maximum" value="1.0"/>
+		<property name="Minimum" value="-1.0"/>
+	</widget>
+	<widget field="pos 5:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="546" y="349"/>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="260" y="115"/>
+		<property name="Text" value="Auto 2, Goes straight forward a set value. Useful for going over defences."/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="260" y="88"/>
+		<width>270</width>
+		<property name="Text" value="Auton 1, Goes under lowbar and hopefully into the goal."/>
+	</static-widget>
+	<widget field="resetEnc:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="200"/>
+	</widget>
+	<widget field="Auto2:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
+		<location x="231" y="112"/>
+	</widget>
+	<widget field="pos 3:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="331" y="405"/>
+	</widget>
+	<widget field="pos 2:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="330" y="377"/>
+	</widget>
+	<widget field="pos 1:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="330" y="347"/>
+	</widget>
+	<widget field="Auto1:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
+		<location x="232" y="85"/>
+	</widget>
+	<widget field="Sensor:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
+		<location x="4" y="380"/>
+		<width>163</width>
+		<height>35</height>
+		<property name="Color to show when true" value="204.204.204.255"/>
+		<property name="Color to show when false" value="0.0.0.255"/>
+	</widget>
+	<widget field="Left Encoder:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="3" y="117"/>
+		<width>184</width>
+		<height>34</height>
+	</widget>
+	<widget field="Right Encoder:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="5" y="160"/>
+		<width>171</width>
+		<height>39</height>
+	</widget>
+	<widget field="Gyro:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="2" y="70"/>
+		<width>152</width>
+		<height>32</height>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.WebcamViewerExtension">
+		<location x="723" y="-1"/>
+		<width>647</width>
+		<height>455</height>
+		<property name="FPS" value="15"/>
+		<property name="Size" value="160x120"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
+		<location x="2" y="424"/>
+		<width>127</width>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="327" y="320"/>
+		<property name="Text" value="Distances/angle for Auto 1"/>
+	</static-widget>
+</dashboard>
+<live-window>
+</live-window>
+	<hidden field="Test of the test:"/>
+	<hidden field="Auto1 Enabled:"/>
+	<hidden field="Right Stick:"/>
+	<hidden field="Auton Selection"/>
+</xml>
