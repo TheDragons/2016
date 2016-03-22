@@ -13,7 +13,10 @@ def update_dash(roboSelf, pastAuto1, pastAuto2):
 	wp.SmartDashboard.putNumber("Right Encoder:",roboSelf.encdRight.get())
 	wp.SmartDashboard.putNumber("Left Encoder:",roboSelf.encdLeft.get())
 	wp.SmartDashboard.putBoolean("Sensor:",roboSelf.intakeSensor.get())
-	
+	wp.SmartDashboard.putNumber("Stick X",roboSelf.stick.getX())
+	wp.SmartDashboard.putNumber("Stick Y:",roboSelf.stick.getY())
+	wp.SmartDashboard.putNumber("Stick2 X:",roboSelf.stick2.getX())
+	wp.SmartDashboard.putNumber("Stick2 Y:",roboSelf.stick2.getY())
 	
 	auto1 = wp.SmartDashboard.getBoolean("Auto1:", True)
 	auto2 = wp.SmartDashboard.getBoolean("Auto2:", True)
@@ -37,12 +40,17 @@ def update_dash(roboSelf, pastAuto1, pastAuto2):
 		roboSelf.gyro.reset()
 		wp.SmartDashboard.putBoolean("resetGyro:", False)
 		
+	if(calGyro):
+		roboSelf.gyro.calibrate()
+		wp.SmartDashboard.putBoolean("calGyro:", False)
+		
 	if(encodeReset):
 		roboSelf.encdRight.reset()
 		roboSelf.encdLeft.reset()
 		wp.SmartDashboard.putBoolean("resetEnc:", False)
-	
-	Timer(0.02, update_dash, [roboSelf, auto1, auto2]).start()
+		
+	return auto1, auto2
+	#Timer(0.25, update_dash, [roboSelf, auto1, auto2]).start()
 
 try:
 	camServ = wp.CameraServer()
@@ -77,9 +85,11 @@ class MyRobot(wp.SampleRobot):
 		self.shifter = wp.DoubleSolenoid(0,1)
 		self.extIntakeSol = wp.DoubleSolenoid(2,3)
 		self.ptoSol = wp.DoubleSolenoid(4,5)
+		
 		self.stick = joy.joyClass(0)
 		self.stick2 = joy.joyClass(1)
 		self.stick3 = joy.joyClass(2)
+		
 		self.intakeSensor = wp.DigitalInput(4)
 		self.autoTime = wp.Timer()
 		self.intakeTime = wp.Timer()
@@ -89,13 +99,7 @@ class MyRobot(wp.SampleRobot):
 		
 		#update dashboard
 		update_dash(self, True, True)
-						
-		#wp.SmartDashboard.putBoolean("Auto1:", False)
-		#wp.SmartDashboard.putBoolean("Auto2:", False)
-		#wp.SmartDashboard.putNumber("pos 1:", 9825)
-		#wp.SmartDashboard.putNumber("pos 2:", 40)
-		#wp.SmartDashboard.putNumber("pos 3:", 6550)
-		#wp.SmartDashboard.putNumber("pos 5:", 6000)
+		
 	def autonomous(self):
 		self.gyro.reset()
 		self.encdLeft.reset()
@@ -107,10 +111,10 @@ class MyRobot(wp.SampleRobot):
 		turnGain = 40
 		straitGain = 43
 		
-		wp.SmartDashboard.putNumber("pos 1:", 3900)
-		wp.SmartDashboard.putNumber("pos 2:", 64)
-		wp.SmartDashboard.putNumber("pos 3:", 3400)
-		wp.SmartDashboard.putNumber("pos 5:", 6000)
+		pos1 = wp.SmartDashboard.getNumber("pos 1:", 3900)
+		pos2 = wp.SmartDashboard.getNumber("pos 2:", 64)
+		pos3 = wp.SmartDashboard.getNumber("pos 3:", 3400)
+		pos5 = wp.SmartDashboard.getNumber("pos 5:", 6000)
 		auto1 = wp.SmartDashboard.getBoolean("Auto1:", False)
 		auto2 = wp.SmartDashboard.getBoolean("Auto2:", False)
 		
@@ -122,7 +126,12 @@ class MyRobot(wp.SampleRobot):
 		setL = 0
 		self.ptoSol.set(1)
 		extIntakeSet = 1
+		p1 = True
+		p2 = True
+		p1, p2 = update_dash(self, p1, p2)
 		while self.isAutonomous() and self.isEnabled():
+			p1, p2 = update_dash(self, p1, p2)
+			
 			if(auto1):
 				if(abs(self.encdLeft.get()) < pos1 and abs(self.encdRight.get()) < pos1 and stage1):  # 
 					setR, setL = rf.gyroFunc(self.gyro.getAngle(), 0, -0.65, straitGain)
@@ -150,7 +159,7 @@ class MyRobot(wp.SampleRobot):
 				else:
 					setR = 0
 					setL = 0
-				
+							
 			self.motorFrontRight.set(setR * -1)
 			self.motorMiddleRight.set(setR)
 			self.motorBackRight.set(setR * -1)	
@@ -164,7 +173,9 @@ class MyRobot(wp.SampleRobot):
 			wp.SmartDashboard.putNumber("Left Motor:", setL)
 			
 	def disabled(self):
-		pass
+		p1, p2 = update_dash(self, True, True)
+		while self.isDisabled():
+			p1, p2 = update_dash(self, p1, p2)
 
 	def operatorControl(self):
 		past2 = False #used for fliping drive train
@@ -190,8 +201,10 @@ class MyRobot(wp.SampleRobot):
 		extIntakeSet = 1
 		ptoSet = 1
 		extIntakeMotorSpeed = 0
+		p1, p2 = update_dash(self, True, True)
 		while self.isOperatorControl() and self.isEnabled():
 			#output to dashboard
+			p1, p2 = update_dash(self, p1, p2)
 			joyValY = self.stick.getY()
 			joyValX = self.stick.getX()
 			gyroButton = self.stick.getButtonRise(8)
@@ -210,8 +223,6 @@ class MyRobot(wp.SampleRobot):
 			intakeForward = self.stick3.getButtonRise(10) 
 			intakeBackward = self.stick3.getButtonRise(11)
 			
-			
-
 			if (past2 == False and driveSideButton == True):
 				flipVar = not flipVar
 			past2 = driveSideButton
@@ -220,7 +231,7 @@ class MyRobot(wp.SampleRobot):
 			rightM, leftM = rf.tank(joyValY, joyVal2)
 			
 			#used to flip side of tank
-			rSide, lSide = rf.flip(flipVar, rightM, leftM) 
+			setR, setL = rf.flip(flipVar, rightM, leftM) 
 			
 			#Intake
 			intakeMotorSpeed = 0
@@ -277,7 +288,7 @@ class MyRobot(wp.SampleRobot):
 				self.gyro.calibrate()
 				
 			#drivetrain compensation
-			setR = setR * 1
+			setR = setR * .95
 			
 			self.motorFrontRight.set(setR * -1)
 			self.motorBackRight.set(setR * -1)
@@ -304,8 +315,6 @@ class MyRobot(wp.SampleRobot):
 			wp.SmartDashboard.putNumber("Right Motor:", setR)
 			wp.SmartDashboard.putNumber("Left Motor:", setL)
 			wp.SmartDashboard.putNumber("Left Stick:", self.stick.getY())
-			wp.SmartDashboard.putNumber("Right Stick:", self.stick2.getY())
-
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
 if __name__ == '__main__':

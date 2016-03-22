@@ -1,12 +1,37 @@
 <xml version="1.0">
 <dashboard>
-	<widget field="calGyro:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="13" y="31"/>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="53" y="255"/>
+		<property name="Text" value="Calibrate Gyro"/>
+	</static-widget>
+	<widget field="calGyro:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
+		<location x="30" y="252"/>
 	</widget>
-	<widget field="resetGyro:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
-		<location x="128" y="262"/>
-		<width>100</width>
-		<height>24</height>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="54" y="232"/>
+		<property name="Text" value="Reset Gyro"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="54" y="208"/>
+		<property name="Text" value="Reset Encoders"/>
+	</static-widget>
+	<widget field="resetEnc:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
+		<location x="30" y="205"/>
+	</widget>
+	<widget field="resetGyro:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
+		<location x="30" y="228"/>
+	</widget>
+	<widget field="Stick2 Y:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="501" y="241"/>
+	</widget>
+	<widget field="Stick2 X:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="355" y="242"/>
+	</widget>
+	<widget field="Stick Y:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="507" y="215"/>
+	</widget>
+	<widget field="Stick X" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="365" y="214"/>
 	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
 		<location x="452" y="408"/>
@@ -53,9 +78,6 @@
 		<width>270</width>
 		<property name="Text" value="Auton 1, Goes under lowbar and hopefully into the goal."/>
 	</static-widget>
-	<widget field="resetEnc:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="0" y="200"/>
-	</widget>
 	<widget field="Auto2:" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
 		<location x="231" y="112"/>
 	</widget>
@@ -75,11 +97,11 @@
 		<location x="4" y="380"/>
 		<width>163</width>
 		<height>35</height>
-		<property name="Color to show when true" value="204.204.204.255"/>
+		<property name="Color to show when true" value="255.153.0.255"/>
 		<property name="Color to show when false" value="0.0.0.255"/>
 	</widget>
 	<widget field="Left Encoder:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="3" y="117"/>
+		<location x="11" y="119"/>
 		<width>184</width>
 		<height>34</height>
 	</widget>
@@ -89,7 +111,7 @@
 		<height>39</height>
 	</widget>
 	<widget field="Gyro:" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="2" y="70"/>
+		<location x="50" y="79"/>
 		<width>152</width>
 		<height>32</height>
 	</widget>
@@ -111,8 +133,10 @@
 </dashboard>
 <live-window>
 </live-window>
-	<hidden field="Test of the test:"/>
-	<hidden field="Auto1 Enabled:"/>
-	<hidden field="Right Stick:"/>
-	<hidden field="Auton Selection"/>
+	<hidden field="joyY21:"/>
+	<hidden field="joyX2:"/>
+	<hidden field="joyX1:"/>
+	<hidden field="joyY2:"/>
+	<hidden field="joyX:"/>
+	<hidden field="joyY:"/>
 </xml>
