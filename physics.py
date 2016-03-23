@@ -56,12 +56,15 @@ class PhysicsEngine(object):
 		lm_motor = hal_data['pwm'][middleLeftPort]['value']
 		rm_motor = -hal_data['pwm'][middleRightPort]['value']
 			
-		lcountP = self.lcount 
-		rcountP = self.rcount 
-
-		self.lcount += (lf_motor + lr_motor + lm_motor)/4
-		self.rcount += (rf_motor + rr_motor + rm_motor)/4
+		self.lcount -= (lf_motor + lr_motor + lm_motor)/4
+		self.rcount -= (rf_motor + rr_motor + rm_motor)/4
+				
+		if(self.lcountP != 0 and hal_data['encoder'][0]['count'] == 0):
+			self.lcount = 0
 		
+		if(self.rcountP != 0 and hal_data['encoder'][1]['count'] == 0):
+			self.rcount = 0
+			
 		if(self.lcountP == self.lcount):
 			self.encodeLRate = 0
 		elif(self.loopTime != 0):
@@ -71,7 +74,7 @@ class PhysicsEngine(object):
 			self.encodeRRate = 0
 		elif(self.loopTime != 0):
 			self.encodeRRate = (self.rcount - self.rcountP)/self.loopTime
-		
+
 		self.encodeLRate = 0
 		self.encodeRRate = 0
 
@@ -86,9 +89,14 @@ class PhysicsEngine(object):
 		hal_data['encoder'][1]['count'] = int(self.rcount)
 		hal_data['encoder'][1]['rate'] = self.encodeRRate
 
+		self.lcountP = hal_data['encoder'][0]['count']
+		self.rcountP = hal_data['encoder'][1]['count']
+		
 		rside = (rf_motor + rr_motor + rm_motor)/3
 		lside = (lf_motor + lr_motor + lm_motor)/3
 		
 		vx, vy = drivetrains.two_motor_drivetrain(-rside, lside)
 		
-		self.physics_controller.drive(vx, -vy, tm_diff)
+		#hal_data['analog_in'][0]['accumulator_value'] = hal_data['analog_in'][0]['accumulator_value'] *-1
+		self.physics_controller.drive(vx, vy, tm_diff)
+		#hal_data['analog_in'][0]['accumulator_value'] = hal_data['analog_in'][0]['accumulator_value'] *-1

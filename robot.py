@@ -8,7 +8,7 @@ from threading import Timer
 import wpiJoystickOverlay as joy
 
 #this is an experment, this will run reguardless of robot state, teleop, auto, disabled, test any state but off.
-def update_dash(roboSelf, pastAuto1, pastAuto2): 
+def update_dash(roboSelf, pastAuto1, pastAuto2, right = 0.0, left = 0.0): 
 	wp.SmartDashboard.putNumber("Gyro:",round(roboSelf.gyro.getAngle(), 2))
 	wp.SmartDashboard.putNumber("Right Encoder:",roboSelf.encdRight.get())
 	wp.SmartDashboard.putNumber("Left Encoder:",roboSelf.encdLeft.get())
@@ -17,6 +17,9 @@ def update_dash(roboSelf, pastAuto1, pastAuto2):
 	wp.SmartDashboard.putNumber("Stick Y:",roboSelf.stick.getY())
 	wp.SmartDashboard.putNumber("Stick2 X:",roboSelf.stick2.getX())
 	wp.SmartDashboard.putNumber("Stick2 Y:",roboSelf.stick2.getY())
+			
+	wp.SmartDashboard.putNumber("Right Motor:", right)
+	wp.SmartDashboard.putNumber("Left Motor:", left)
 	
 	auto1 = wp.SmartDashboard.getBoolean("Auto1:", True)
 	auto2 = wp.SmartDashboard.getBoolean("Auto2:", True)
@@ -50,7 +53,6 @@ def update_dash(roboSelf, pastAuto1, pastAuto2):
 		wp.SmartDashboard.putBoolean("resetEnc:", False)
 		
 	return auto1, auto2
-	#Timer(0.25, update_dash, [roboSelf, auto1, auto2]).start()
 
 try:
 	camServ = wp.CameraServer()
@@ -131,14 +133,14 @@ class MyRobot(wp.SampleRobot):
 		p1, p2 = update_dash(self, p1, p2)
 		self.compressor.stop()
 		while self.isAutonomous() and self.isEnabled():
-			p1, p2 = update_dash(self, p1, p2)
+			p1, p2 = update_dash(self, p1, p2, setR, setL)
 			
 			if(auto1):
 				if(abs(self.encdLeft.get()) < pos1 and abs(self.encdRight.get()) < pos1 and stage1):  # 
 					setR, setL = rf.gyroFunc(self.gyro.getAngle(), 0, -0.65, straitGain)
 					extIntakeSet = 2
 					stage2 = True
-				elif(self.gyro.getAngle() < pos2 and stage2): #abs(self.encdLeft.get()) < pos2 and
+				elif(abs(self.gyro.getAngle()) < (pos2 -.05) and stage2): #abs(self.encdLeft.get()) < pos2 and
 					stage1 = False
 					setR, setL = rf.angleFunc(self.gyro.getAngle(), pos2, turnGain)
 					self.encdLeft.reset()
@@ -170,17 +172,15 @@ class MyRobot(wp.SampleRobot):
 			self.motorBackLeft.set(setL)
 			self.intakeMotor.set(intakeMotorSpeed)
 			self.ptoSol.set(1)
-			
-			wp.SmartDashboard.putNumber("Right Motor:", setR)
-			wp.SmartDashboard.putNumber("Left Motor:", setL)
+			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 			
 	def disabled(self):
 		p1, p2 = update_dash(self, True, True)
 		while self.isDisabled():
 			p1, p2 = update_dash(self, p1, p2)
+			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
 	def operatorControl(self):
-		past2 = False #used for fliping drive train
 		flipVar = False
 		
 		#reset encoders
@@ -207,7 +207,7 @@ class MyRobot(wp.SampleRobot):
 		self.compressor.start()
 		while self.isOperatorControl() and self.isEnabled():
 			#output to dashboard
-			p1, p2 = update_dash(self, p1, p2)
+			p1, p2 = update_dash(self, p1, p2, setR, setL)
 			joyValY = self.stick.getY()
 			joyValX = self.stick.getX()
 			gyroButton = self.stick.getButtonRise(8)
@@ -226,9 +226,8 @@ class MyRobot(wp.SampleRobot):
 			intakeForward = self.stick3.getButtonRise(10) 
 			intakeBackward = self.stick3.getButton(9)
 			
-			if (past2 == False and driveSideButton == True):
+			if (driveSideButton):
 				flipVar = not flipVar
-			past2 = driveSideButton
 			
 			#Used to run tank drive
 			rightM, leftM = rf.tank(joyValY, joyVal2)
@@ -311,10 +310,6 @@ class MyRobot(wp.SampleRobot):
 			intakeMotorSpeed = 0                                                                                                                                                              
 			
 			#smartdashboard
-			wp.SmartDashboard.putNumber("Right Motor:", setR)
-			wp.SmartDashboard.putNumber("Left Motor:", setL)
-			wp.SmartDashboard.putBoolean("button11:", setL)
-			wp.SmartDashboard.putNumber("Left Stick:", self.stick3.getButton(11))
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
 if __name__ == '__main__':
