@@ -119,8 +119,8 @@
 		<location x="723" y="-1"/>
 		<width>647</width>
 		<height>455</height>
-		<property name="FPS" value="15"/>
-		<property name="Size" value="160x120"/>
+		<property name="FPS" value="24"/>
+		<property name="Size" value="320x240"/>
 	</static-widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
 		<location x="2" y="424"/>
@@ -133,10 +133,4 @@
 </dashboard>
 <live-window>
 </live-window>
-	<hidden field="joyY21:"/>
-	<hidden field="joyX2:"/>
-	<hidden field="joyX1:"/>
-	<hidden field="joyY2:"/>
-	<hidden field="joyX:"/>
-	<hidden field="joyY:"/>
 </xml>

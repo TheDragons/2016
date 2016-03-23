@@ -3,7 +3,7 @@ import wpilib as wp
 class joyClass():
     def __init__(self, joystickPort, deadZone = 0.05):
         self._joystickObj = wp.Joystick(joystickPort)
-        self._buttonCount = 12 if (self._joystickObj.getButtonCount() == 0) else self._joystickObj.getButtonCount()
+        self._buttonCount = 12 # if (self._joystickObj.getButtonCount() == 0) else self._joystickObj.getButtonCount()
         self._axisCount = 2 # if (self._joystickObj.getAxisCount() == 0) else self._joystickObj.getAxisCount()
         self._deadZone = deadZone
         self._currentVal = self._lastVal = self._lastValueJoy()
@@ -44,7 +44,7 @@ class joyClass():
 
     def getButton(self, buttonNum):
         currentVal = self._currentVal[buttonNum] # self._joystickObj.getRawButton(buttonNum)
-        return currentVal
+        return (currentVal == True)
        
     def getButtonEvent(self, buttonNum):
         return (self._lastVal[buttonNum] != self.getButton(buttonNum))

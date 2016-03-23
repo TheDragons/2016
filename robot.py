@@ -129,6 +129,7 @@ class MyRobot(wp.SampleRobot):
 		p1 = True
 		p2 = True
 		p1, p2 = update_dash(self, p1, p2)
+		self.compressor.stop()
 		while self.isAutonomous() and self.isEnabled():
 			p1, p2 = update_dash(self, p1, p2)
 			
@@ -150,6 +151,7 @@ class MyRobot(wp.SampleRobot):
 				else:
 					setR = 0
 					setL = 0
+					intakeMotorSpeed = -1
 					stage3 = False
 				self.extIntakeSol.set(extIntakeSet)
 				
@@ -202,6 +204,7 @@ class MyRobot(wp.SampleRobot):
 		ptoSet = 1
 		extIntakeMotorSpeed = 0
 		p1, p2 = update_dash(self, True, True)
+		self.compressor.start()
 		while self.isOperatorControl() and self.isEnabled():
 			#output to dashboard
 			p1, p2 = update_dash(self, p1, p2)
@@ -214,14 +217,14 @@ class MyRobot(wp.SampleRobot):
 			joyVal2 = self.stick2.getY()
 			driveSideButton = self.stick2.getButtonRise(2)
 			lowButton = self.stick2.getButtonRise(10)
-			highButton = self.stick2.getButtonRise(11)
+			highButton = self.stick2.getButtonRise(5)
 			
-			extIntakeBackward = self.stick3.getButtonRise(1)
-			extIntakeOutButton = self.stick3.getButtonRise(6)
-			extIntakeInButton = self.stick3.getButtonRise(7)
+			extIntakeBackward = self.stick3.getButton(1)
+			extIntakeOutButton = self.stick3.getButton(6)
+			extIntakeInButton = self.stick3.getButton(7)
 			compressorButton = self.stick3.getButtonRise(8)
 			intakeForward = self.stick3.getButtonRise(10) 
-			intakeBackward = self.stick3.getButtonRise(11)
+			intakeBackward = self.stick3.getButton(9)
 			
 			if (past2 == False and driveSideButton == True):
 				flipVar = not flipVar
@@ -256,14 +259,11 @@ class MyRobot(wp.SampleRobot):
 						self.intakeTime.stop()
 						self.intakeTime.reset()
 			
-				
 			if(intakeBackward):
-				intakeMotorSpeed = -1 
+				intakeMotorSpeed = -1
 				
 			if(extIntakeBackward):
 				extIntakeMotorSpeed = 1
-			
-			
 			
 			if(extIntakeInButton or (self.stick3.getY() <= -0.85)):
 				extIntakeSet = 2
@@ -308,13 +308,13 @@ class MyRobot(wp.SampleRobot):
 			self.stick2.updateClause()
 			self.stick3.updateClause()
 			
-			
 			intakeMotorSpeed = 0                                                                                                                                                              
 			
 			#smartdashboard
 			wp.SmartDashboard.putNumber("Right Motor:", setR)
 			wp.SmartDashboard.putNumber("Left Motor:", setL)
-			wp.SmartDashboard.putNumber("Left Stick:", self.stick.getY())
+			wp.SmartDashboard.putBoolean("button11:", setL)
+			wp.SmartDashboard.putNumber("Left Stick:", self.stick3.getButton(11))
 			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
 
 if __name__ == '__main__':
