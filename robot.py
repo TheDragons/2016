@@ -96,6 +96,8 @@ class MyRobot(wp.SampleRobot):
 		self.autoTime = wp.Timer()
 		self.intakeTime = wp.Timer()
 		
+		self.spike = wp.Relay(0) 
+		
 		#calibrate gyro
 		self.gyro.calibrate() 
 		
@@ -109,13 +111,13 @@ class MyRobot(wp.SampleRobot):
 		rSide = 0
 		lSide = 0
 		straightAngle = 0
-		
-		turnGain = 40
+
+		turnGain = 80
 		straitGain = 43
 		
-		pos1 = wp.SmartDashboard.getNumber("pos 1:", 3900)
-		pos2 = wp.SmartDashboard.getNumber("pos 2:", 64)
-		pos3 = wp.SmartDashboard.getNumber("pos 3:", 3400)
+		pos1 = wp.SmartDashboard.getNumber("pos 1:", 3800)
+		pos2 = wp.SmartDashboard.getNumber("pos 2:", 38)
+		pos3 = wp.SmartDashboard.getNumber("pos 3:", 5000)
 		pos5 = wp.SmartDashboard.getNumber("pos 5:", 6000)
 		auto1 = wp.SmartDashboard.getBoolean("Auto1:", False)
 		auto2 = wp.SmartDashboard.getBoolean("Auto2:", False)
@@ -153,7 +155,7 @@ class MyRobot(wp.SampleRobot):
 				else:
 					setR = 0
 					setL = 0
-					intakeMotorSpeed = -1
+					intakeMotorSpeed = 1
 					stage3 = False
 				self.extIntakeSol.set(extIntakeSet)
 				
@@ -203,6 +205,7 @@ class MyRobot(wp.SampleRobot):
 		extIntakeSet = 1
 		ptoSet = 1
 		extIntakeMotorSpeed = 0
+		liftMotorSpeed = 0
 		p1, p2 = update_dash(self, True, True)
 		self.compressor.start()
 		while self.isOperatorControl() and self.isEnabled():
@@ -220,8 +223,8 @@ class MyRobot(wp.SampleRobot):
 			highButton = self.stick2.getButtonRise(5)
 			
 			extIntakeBackward = self.stick3.getButton(1)
-			extIntakeOutButton = self.stick3.getButton(6)
-			extIntakeInButton = self.stick3.getButton(7)
+			lifterUp = self.stick3.getButton(6)
+			lifterDown = self.stick3.getButton(7)
 			compressorButton = self.stick3.getButtonRise(8)
 			intakeForward = self.stick3.getButtonRise(10) 
 			intakeBackward = self.stick3.getButton(9)
@@ -243,8 +246,8 @@ class MyRobot(wp.SampleRobot):
 				intakeIsEnabled = not intakeIsEnabled
 			
 			if(intakeIsEnabled):
-				intakeMotorSpeed = 0.75
-				extIntakeMotorSpeed = -0.75
+				intakeMotorSpeed = -0.8
+				extIntakeMotorSpeed = -1
 				
 				if( self.intakeSensor.get() == 1 ):
 					if(self.intakeTime.running == False):
@@ -259,16 +262,28 @@ class MyRobot(wp.SampleRobot):
 						self.intakeTime.reset()
 			
 			if(intakeBackward):
-				intakeMotorSpeed = -1
+				intakeMotorSpeed = 1
 				
 			if(extIntakeBackward):
 				extIntakeMotorSpeed = 1
 			
-			if(extIntakeInButton or (self.stick3.getY() <= -0.85)):
+			if(self.stick3.getY() <= -0.85):
 				extIntakeSet = 2
 				
-			if(extIntakeOutButton or (self.stick3.getY() >= 0.85)):
+			if(self.stick3.getY() >= 0.85):
 				extIntakeSet = 1
+				
+			if(self.intakeSensor.get() == 1):
+				self.spike.set(3)
+			else:
+				self.spike.set(0)
+				
+			#lifter
+			liftMotorSpeed = 0
+			if(lifterUp):
+				liftMotorSpeed = 1
+			if(lifterDown):
+				liftMotorSpeed = -1
 						
 			#toggle shifting button
 			if(highButton and shiftSet == 2):
@@ -302,6 +317,8 @@ class MyRobot(wp.SampleRobot):
 			self.shifter.set(shiftSet)
 			self.extIntakeSol.set(extIntakeSet)
 			self.ptoSol.set(ptoSet)
+			
+			self.liftMotor.set(liftMotorSpeed)
 			
 			self.stick.updateClause()
 			self.stick2.updateClause()
