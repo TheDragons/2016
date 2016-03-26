@@ -115,8 +115,8 @@ class MyRobot(wp.SampleRobot):
 		turnGain = 80
 		straitGain = 43
 		
-		pos1 = wp.SmartDashboard.getNumber("pos 1:", 3800)
-		pos2 = wp.SmartDashboard.getNumber("pos 2:", 38)
+		pos1 = wp.SmartDashboard.getNumber("pos 1:", 4000)
+		pos2 = wp.SmartDashboard.getNumber("pos 2:", 40)
 		pos3 = wp.SmartDashboard.getNumber("pos 3:", 5000)
 		pos5 = wp.SmartDashboard.getNumber("pos 5:", 6000)
 		auto1 = wp.SmartDashboard.getBoolean("Auto1:", False)
@@ -302,7 +302,7 @@ class MyRobot(wp.SampleRobot):
 				self.gyro.calibrate()
 				
 			#drivetrain compensation
-			setR = setR * .95
+			setR = setR * .935
 			
 			self.motorFrontRight.set(setR * -1)
 			self.motorBackRight.set(setR * -1)
