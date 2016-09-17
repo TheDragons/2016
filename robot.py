@@ -54,15 +54,15 @@ def update_dash(roboSelf, pastAuto1, pastAuto2, right = 0.0, left = 0.0):
 		
 	return auto1, auto2
 
-try:
-	camServ = wp.CameraServer()
-	usbCam = wp.USBCamera()
-	usbCam.setExposureManual(50)
-	usbCam.setBrightness(80)
-	usbCam.updateSettings() # force update before we start thread
-	camServ.startAutomaticCapture(usbCam)
-except:
-	pass
+#try:
+#	camServ = wp.CameraServer()
+#	usbCam = wp.USBCamera()
+#	usbCam.setExposureManual(50)
+#	usbCam.setBrightness(80)
+#	usbCam.updateSettings() # force update before we start thread
+#	camServ.startAutomaticCapture(usbCam)
+#except:
+#	pass
 	
 class MyRobot(wp.SampleRobot):
 	def robotInit(self):
@@ -112,13 +112,13 @@ class MyRobot(wp.SampleRobot):
 		lSide = 0
 		straightAngle = 0
 
-		turnGain = 80
+		turnGain = 70
 		straitGain = 43
 		
 		pos1 = wp.SmartDashboard.getNumber("pos 1:", 4000)
-		pos2 = wp.SmartDashboard.getNumber("pos 2:", 40)
+		pos2 = wp.SmartDashboard.getNumber("pos 2:", 41)
 		pos3 = wp.SmartDashboard.getNumber("pos 3:", 5000)
-		pos5 = wp.SmartDashboard.getNumber("pos 5:", 6000)
+		pos5 = wp.SmartDashboard.getNumber("pos 5:", 5000)
 		auto1 = wp.SmartDashboard.getBoolean("Auto1:", False)
 		auto2 = wp.SmartDashboard.getBoolean("Auto2:", False)
 		
@@ -160,7 +160,7 @@ class MyRobot(wp.SampleRobot):
 				self.extIntakeSol.set(extIntakeSet)
 				
 			if(auto2):
-				if(abs(self.encdRight.get()) < pos5): 
+				if(abs(self.encdRight.get()) < pos5 or abs(self.encdLeft.get()) < pos5): 
 					setR, setL = rf.gyroFunc(self.gyro.getAngle(), 0, -0.9, straitGain)                 #USE FOR DRIVING STRAIGHT OVER DEFENCE
 				else:
 					setR = 0
@@ -174,13 +174,13 @@ class MyRobot(wp.SampleRobot):
 			self.motorBackLeft.set(setL)
 			self.intakeMotor.set(intakeMotorSpeed)
 			self.ptoSol.set(1)
-			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
+			wp.Timer.delay(0.015)   # wait 5ms to avoid hogging CPU cycles
 			
 	def disabled(self):
 		p1, p2 = update_dash(self, True, True)
 		while self.isDisabled():
 			p1, p2 = update_dash(self, p1, p2)
-			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
+			wp.Timer.delay(0.015)   # wait 5ms to avoid hogging CPU cycles
 
 	def operatorControl(self):
 		flipVar = False
@@ -191,7 +191,7 @@ class MyRobot(wp.SampleRobot):
 		self.gyro.reset()
 		
 		#Gain Tuning
-		dtGain = 0.075 
+		dtGain = 0.11
 		wantedSpeed = 300
 		speedGain = 100
 		
@@ -217,7 +217,7 @@ class MyRobot(wp.SampleRobot):
 			ptoDisengage = self.stick.getButtonRise(10)
 			ptoEngage = self.stick.getButtonRise(11)
 			
-			joyVal2 = self.stick2.getY()
+			joyVal2 = self.stick.getRawAxis(5)
 			driveSideButton = self.stick2.getButtonRise(2)
 			lowButton = self.stick2.getButtonRise(10)
 			highButton = self.stick2.getButtonRise(5)
@@ -327,7 +327,7 @@ class MyRobot(wp.SampleRobot):
 			intakeMotorSpeed = 0                                                                                                                                                              
 			
 			#smartdashboard
-			wp.Timer.delay(0.005)   # wait 5ms to avoid hogging CPU cycles
+			wp.Timer.delay(0.015)   # wait 5ms to avoid hogging CPU cycles
 
 if __name__ == '__main__':
     wp.run(MyRobot)

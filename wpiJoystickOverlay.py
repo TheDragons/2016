@@ -1,7 +1,7 @@
 import wpilib as wp
 
 class joyClass():
-    def __init__(self, joystickPort, deadZone = 0.05):
+    def __init__(self, joystickPort, deadZone = 0.02):
         self._joystickObj = wp.Joystick(joystickPort)
         self._buttonCount = 12 # if (self._joystickObj.getButtonCount() == 0) else self._joystickObj.getButtonCount()
         self._axisCount = 2 # if (self._joystickObj.getAxisCount() == 0) else self._joystickObj.getAxisCount()
